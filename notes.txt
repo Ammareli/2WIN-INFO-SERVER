@@ -1,0 +1,20 @@
+# Info Server
+
+This server is designed to handle competitions and will send the competition results to the messaging server. It is capable of managing multiple competitions simultaneously and uses the competition name to determine which competition to process.
+
+## Features
+
+- Handles multiple competitions
+- Sends competition results to the messaging server
+- Uses competition name to identify and process the correct competition
+- Callback endpoint receves the data of the callback 
+
+## Usage
+
+1. Start the server.
+2. Submit competition data.
+3. The server processes the data and sends the results to the messaging server.
+
+## Example
+
+To submit a competition result, send a request with the competition name and metadata. The server will handle the rest.

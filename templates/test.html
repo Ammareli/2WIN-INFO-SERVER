@@ -1,0 +1,35 @@
+<!-- templates/test.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logs and Notes</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+      }
+      h1 {
+        color: #333;
+      }
+      pre {
+        background-color: #eaeaea;
+        padding: 10px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Notes</h1>
+    <div>
+      {{ notes_html|safe }}
+    </div>
+    <h1>Logs</h1>
+    <pre>
+      {{ log_content }}
+    </pre>
+  </body>
+</html>

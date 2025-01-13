@@ -1,0 +1,7 @@
+flask 
+redis
+markdown
+python-dotenv
+pytz
+
+
