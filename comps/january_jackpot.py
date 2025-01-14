@@ -57,6 +57,7 @@ def search_spotify(query, token, search_type="track"):
 def verify_with_spotify(track_data):
     """Verify track data with Spotify"""
     try:
+        logger.info(f"Verifying track data with Spotify: {track_data}")
         spotify_token = get_spotify_token()
         title = track_data.get('title', '')
         artist = track_data.get('artists', [{}])[0].get('name', '')
@@ -103,6 +104,7 @@ def get_artist_name(max_retries=5, retry_delay=5):
     """Get artist name with retries"""
     for attempt in range(max_retries):
         api_data = fetch_live_data()
+        logger.info(f"API data for artist: {api_data}")
         if not api_data:
             logger.info(f"Retry {attempt + 1}/{max_retries}: No data received")
             time.sleep(retry_delay)
@@ -116,6 +118,7 @@ def get_artist_name(max_retries=5, retry_delay=5):
                 return verified_data['artists']
         
         if attempt < max_retries - 1:
+            logger.info(f"Retry {attempt + 1}/{max_retries}: No artist found")
             time.sleep(retry_delay)
     
     return None
@@ -140,6 +143,7 @@ def process_alarm(alarm_id):
 def run_jan_jackpot(alarm_id):
     """Run January Jackpot process"""
     result =  process_alarm(alarm_id)
+    
     if result[1]:
         return [COMP_NAME,result[0],result[1]]
     return None

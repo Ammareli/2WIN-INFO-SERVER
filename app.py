@@ -11,6 +11,7 @@ from redis_cache import RedisContactManager
 import markdown
 from utilites import get_compname_alerts
 from handle_comp import run_comp
+from threading import Thread
 
 
 # Initialize the RedisContactManager
@@ -20,6 +21,14 @@ contact_manager = RedisContactManager()
 app = Flask(__name__)
 
 
+def process_alarm(data):
+    logger.info(f"Started COMP PROCESSING")
+    comp_alert = get_compname_alerts(data)
+    logger.info(f"Received callback data for company: {comp_alert[0]}")
+    logger.info(f"Alert type: {comp_alert[1]}")
+    run_comp(comp_name=comp_alert[0], alert_type=comp_alert[1])
+    logger.info(f"Received callback data: {data}")
+    logger.info(f"COMP PROCESSING COMPLETED")
 
 @app.route('/info-server')
 def test_route():
@@ -41,11 +50,7 @@ def test_route():
 def handle_callback():
     data = request.json
     logger.info(f"Received callback data: {data}")
-    comp_alert = get_compname_alerts(data)
-    logger.info(f"Received callback data for company: {comp_alert[0]}")
-    logger.info(f"Alert type: {comp_alert[1]}")
-    run_comp(comp_name=comp_alert[0], alert_type=comp_alert[1])
-    logger.info(f"Received callback data: {data}")
+    Thread(target=process_alarm, args=(data,)).start()
     return jsonify({'status': 'success'}), 200  
 
 if __name__ == '__main__':

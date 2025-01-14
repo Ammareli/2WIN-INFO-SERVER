@@ -3,6 +3,7 @@ import requests
 from constants import AUTH, URL
 from logger import logger
 import json
+import time
 
             
 def get_compname_alerts(data):
@@ -23,6 +24,7 @@ def get_compname_alerts(data):
 
 
 def return_data_to_message_server(data):
+    time.sleep(180)  # delay for 3 minutes only for beta testing
     comp_name = data[0]
     message_data = data[1]
     headers = {
@@ -36,6 +38,7 @@ def return_data_to_message_server(data):
     response = requests.post(URL, headers=headers, json=data)
     logger.info(f"Message server response: {response}")
     if response.status_code == 200:
+        logger.info(f"Successfully sent data to message server for comp DATA: {data}")
         return True
     else:
         return False
