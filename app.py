@@ -21,7 +21,7 @@ app = Flask(__name__)
 
 
 
-@app.route('/')
+@app.route('/info-server')
 def test_route():
     # Read the notes.txt file
     with open(NOTES_FILE_PATH, 'r') as file:
