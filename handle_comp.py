@@ -21,6 +21,9 @@ def run_comp(comp_name, alert_type):
     if comp_name == 'January Jackpot':
         logger.info(f"Running comp: {comp_name, alert_type}")
         data = run_jan_jackpot(alert_type)
+        if data is None:
+            logger.info(f"No data received for comp: {comp_name}")
+            return
         if data:
             result = return_data_to_message_server(data)  
         else:

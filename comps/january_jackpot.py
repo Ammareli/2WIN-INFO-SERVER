@@ -6,15 +6,7 @@ import os
 import pytz
 from logger import logger
 from base64 import b64encode
-from constants import TIME_ZONE, SPOTIFY_API_URL, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_TOKEN_URL, ARTIST_FILE
-
-
-
-# ACRCloud Configuration
-BEARER_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI3IiwianRpIjoiNTJhZDUzNTIzMmExMTRmYmI3YTdjZTRmOGRmNDA1NTA3YzRiMzUxZGU0MTNkMmZkMmQzMTczMzRkYWM1MDJmYmYyOTgzYjg0MGQzZGY5MDYiLCJpYXQiOjE3MjM1NDY3NTYuMzU1MDAyLCJuYmYiOjE3MjM1NDY3NTYuMzU1MDA0LCJleHAiOjIwMzkwNzk1NTYuMzIxNjExLCJzdWIiOiIxODQ4MDQiLCJzY29wZXMiOlsiKiIsIndyaXRlLWFsbCIsInJlYWQtYWxsIl19.JH4UjF2XVKlXVwTxWcW6Ia6vUDI6TtgUhKpCLutgrPZ1cxWZZ2Ta-japzaMFC1cVKVXTn36FyQNaok9yAEqOhAwVlfkSFnByW5A6VD2H-rtc70u7oI2EK6LYyY6jpwtk_bjp68RtRLwY6u4B4oLuXwjOP-VQp7qm5oIksmSd4ZnPRzEubb1IiYXPtpaSY2aWr4h10r1S6ibYNmgS0FbrD5ahwMqzjzQvPq2LUext3Vyi0E_D1wrzbpl0ZaYi_sMpVP052K2S1WbPvw7Jzgkzl0RogaifrqQ-Zyy0sV7AuGGo-syrcWgRpz2oscBkJZu6fcPLe5D1s8daMFiUslODrfA16rUgYUxPXcrSHYwwwgYAtRpV5VCwdMN-yFau0DG9wl2ZEm0x089x7iZ_QTSHVQGlCTqV50yASrXtazQfM2a1WRd5P446O1k7faaOE_Yqs9yc8RXOS-Z1_AfV2cXKHnckWtdUjSii2iCKPrk85i_oI278Bj-HacPe_LNsTPZQihq2GyaeQCSN3GW3LRAIEthbHGlq7woFQ1jPzFEr2w4tWTyF6a8PtkXpnsMW_WIOSqH-4RQeMnsNK5MIpOlVo3pp3ZPimWe5miAEb-2zbxBjo4AXUZ4LPtxtHbH3EFmyW7xFv-lRIT9zjjg4Cpsy8vBuUpKqILeMkZkHmmSRiic"
-API_URL = "https://api-v2.acrcloud.com/api/bm-bd-projects/3165/channels/293484/realtime_results"
-
-
+from constants import TIME_ZONE, SPOTIFY_API_URL, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_TOKEN_URL, ACR_API_KEY, ACR_API_URL
 
 # Valid alarm IDs
 VALID_ALARMS = ["Alarm1", "Alarm2", "Alarm3", "Alarm4", "Alarm5"]
@@ -96,11 +88,11 @@ def format_artists(track_data):
 def fetch_live_data():
     """Fetch live data from ACRCloud API"""
     headers = {
-        "Authorization": f"Bearer {BEARER_TOKEN}",
+        "Authorization": f"Bearer {ACR_API_KEY}",
         "Accept": "application/json"
     }
     try:
-        response = requests.get(API_URL, headers=headers)
+        response = requests.get(ACR_API_URL, headers=headers)
         response.raise_for_status()
         return response.json()
     except Exception as e:
@@ -141,38 +133,16 @@ def process_alarm(alarm_id):
     if artist_name:
         logger.info(f"Artist name found: {artist_name}")
         return [artist_name, True]
-    return False
+    return [None, False]
 
-def check_for_alarm(data):
-    """Check for any alarm ID in the data recursively"""
-    if isinstance(data, dict):
-        # First check for ALARM_ID in custom_files structure
-        if 'data' in data and 'metadata' in data['data'] and 'custom_files' in data['data']['metadata']:
-            for file in data['data']['metadata']['custom_files']:
-                if 'ALARM_ID' in file and file['ALARM_ID'] in VALID_ALARMS:
-                    return file['ALARM_ID']
-        
-        # Then check all other fields
-        for key, value in data.items():
-            if isinstance(value, str) and value in VALID_ALARMS:
-                return value
-            result = check_for_alarm(value)
-            if result:
-                return result
-    elif isinstance(data, list):
-        for item in data:
-            result = check_for_alarm(item)
-            if result:
-                return result
-    return None
 
 
 def run_jan_jackpot(alarm_id):
     """Run January Jackpot process"""
     result =  process_alarm(alarm_id)
     if result[1]:
-        return [COMP_NAME,result[0]]
-    return False
+        return [COMP_NAME,result[0],result[1]]
+    return None
 
 
 
