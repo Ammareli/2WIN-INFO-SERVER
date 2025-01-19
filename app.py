@@ -32,7 +32,7 @@ def process_alarm(data):
     logger.info(f"Received callback data for comp: {comp_alert[0]}")
     logger.info(f"Alert type: {comp_alert[1]}")
     # SAVE THE COMP NAME SO THE ALARMS WONT PROCESSED AGAIN.
-    if contact_manager.redis_client.exists("CURRENT_PRCESSING_COMP"):
+    if contact_manager.redis_client.exists(comp_alert[0]):
         logger.info("This comp has already been processed cannot process process the comp after 120s")
         return
     else:
