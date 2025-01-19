@@ -52,6 +52,7 @@ def return_data_to_message_server(data):
     'message_data': message_data
     }
     response = requests.post(URL, headers=headers, json=data)
+    logger.info("Data Sent to messageing server")
     logger.info(f"Message server response: {response}")
     if response.status_code == 200:
         logger.info(f"Successfully sent data to message server for comp DATA: {data}")

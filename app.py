@@ -29,8 +29,15 @@ def process_alarm(data):
         logger.error("No alert data found in the callback")
         return
     comp_alert = (alert_data["comp_name"], alert_data["alarm_id"])
-    logger.info(f"Received callback data for company: {comp_alert[0]}")
+    logger.info(f"Received callback data for comp: {comp_alert[0]}")
     logger.info(f"Alert type: {comp_alert[1]}")
+    # SAVE THE COMP NAME SO THE ALARMS WONT PROCESSED AGAIN.
+    if contact_manager.redis_client.exists("CURRENT_PRCESSING_COMP"):
+        logger.info("This comp has already been processed cannot process process the comp after 120s")
+        return
+    else:
+        contact_manager.redis_client.set(comp_alert[0],"processing",ex=120)
+    
     run_comp(comp_name=comp_alert[0], alert_type=comp_alert[1])
     logger.info(f"COMP PROCESSING COMPLETED")
 
