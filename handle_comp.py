@@ -1,10 +1,11 @@
 from comps.show_me_the_money import comp_send_me_money_data
+from comps.make_me_a_Millionaire import comp_make_me_a_millionaire
 from comps.january_jackpot import run_jan_jackpot
 from constants import COMPS
 from utilites import return_data_to_message_server
 from logger  import logger
 
-def run_comp(comp_name, alert_type):
+def run_comp(comp_name, alert_type,data=None):
     
     if not comp_name in COMPS:
         raise Exception(f"Invalid comp name: {comp_name}")
@@ -21,6 +22,21 @@ def run_comp(comp_name, alert_type):
     if comp_name == 'January Jackpot':
         logger.info(f"Running comp: {comp_name, alert_type}")
         data = run_jan_jackpot(alert_type)
+        if data is None:
+            logger.info(f"No data received for comp: {comp_name}")
+            return
+        if data:
+            result = return_data_to_message_server(data)  
+        else:
+            return
+        if result:
+            logger.info(f"Successfully sent data to message server for comp: {comp_name, alert_type}")
+
+    if comp_name == 'Make me a millionaire':
+        logger.info(f"Running comp: {comp_name, alert_type}")
+        if data:
+
+            data = comp_make_me_a_millionaire(data)
         if data is None:
             logger.info(f"No data received for comp: {comp_name}")
             return

@@ -16,7 +16,7 @@ PROCESSING_UNTIL = None
 
 # comp name
 COMP_NAME = "January Jackpot"
-
+WAIT_TIME = 50
 # Configure logger with UK timezone
 uk_tz = TIME_ZONE
 
@@ -127,8 +127,8 @@ def get_artist_name(max_retries=5, retry_delay=5):
 def process_alarm(alarm_id):
     """Process alarm trigger and get artist"""
     logger.info(f"🚨 ALARM TRIGGERED: {alarm_id} 🚨")
-    logger.info("Starting 30-second wait for next song")
-    time.sleep(30)
+    
+    time.sleep(WAIT_TIME)
     
     logger.info("Attempting to get artist name")
     artist_name = get_artist_name()

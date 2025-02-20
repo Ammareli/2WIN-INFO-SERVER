@@ -36,9 +36,12 @@ def process_alarm(data):
         logger.info("This comp has already been processed cannot process process the comp after 120s")
         return
     else:
-        contact_manager.redis_client.set(comp_alert[0],"processing",ex=120)
-    
-    run_comp(comp_name=comp_alert[0], alert_type=comp_alert[1])
+        contact_manager.redis_client.set(comp_alert[0],"processing",ex=180)
+    if comp_alert[0] and comp_alert[1]:
+        run_comp(comp_name=comp_alert[0], alert_type=comp_alert[1],data = data)
+    else:
+        run_comp(comp_name=None, alert_type=None, data = data)
+
     logger.info(f"COMP PROCESSING COMPLETED")
 
 @app.route('/info-server')
