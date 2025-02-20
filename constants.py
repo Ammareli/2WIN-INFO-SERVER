@@ -34,6 +34,7 @@ COMPS = [
     "Phrase That Pays", 
     "Xmas Cracker",
     "January Jackpot",
+    "Make me a millionaire"
 ]
 
 # january jackpot
@@ -48,3 +49,4 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 BEARER_TOKEN = os.getenv('ARC_API_BEARER_TOKEN')
 ACRCLOUD_API_URL = os.getenv('ACRCLOUD_API_URL')
 LIVE_STREAM_URL = os.getenv('LIVE_STREAM_URL')
+

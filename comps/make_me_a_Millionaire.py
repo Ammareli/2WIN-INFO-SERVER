@@ -2,31 +2,24 @@ import os
 import requests
 import subprocess
 import pytz
-import json
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
-from flask import Flask, request, jsonify
-from dotenv import load_dotenv
-import time
-import logger
-from constants import OPENAI_API_KEY, BEARER_TOKEN, LIVE_STREAM_URL
+from logger import logger
+from constants import OPENAI_API_KEY, BEARER_TOKEN, LIVE_STREAM_URL,TIME_ZONE
 from redis_cache import RedisContactManager
+import re
 
-# Load environment variables
-load_dotenv('.env2')
 
 # Environment variables and constants
 
 redis_manager = RedisContactManager()
 
-if not OPENAI_API_KEY or not BEARER_TOKEN:
-    raise ValueError("Missing required environment variables. Check .env2 file.")
 
-TIMEZONE = pytz.timezone("Europe/London")
+if not OPENAI_API_KEY or not BEARER_TOKEN:
+    raise ValueError("Missing required environment variables. Check .env file.")
+
+
 OUTPUT_DIR = "output_segments"
 PROCESSED_DIR = os.path.join(OUTPUT_DIR, "processed_segments")
-LOG_FILE = "make_me_millionaire_log.txt"
-MASTER_FILE = "millionaire_master.txt"
 RECORDING_DURATION = 200
 COOLDOWN_DURATION = 300
 VALID_ALARMS = ["Alarm1", "Alarm2", "Alarm3", "Alarm4", "Alarm5"]
@@ -39,12 +32,13 @@ last_processed_alarm_time = None
 def is_in_cooldown():
     cooldown_p = redis_manager.redis_client.get("COOLDOWN_DURATION")    
     if not cooldown_p:
+        redis_manager.redis_client.set("COOLDOWN_DURATION", COOLDOWN_DURATION,ex=COOLDOWN_DURATION)
         return False
     return cooldown_p
 
 
 
-def detect_alarm(data):
+def detect_alarm(data): 
     def search_dict(d):
         if not isinstance(d, (dict, list)):
             return None
@@ -75,7 +69,7 @@ class AudioProcessor:
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         os.makedirs(PROCESSED_DIR, exist_ok=True)
         logger.info(f"Created/verified output directories: {OUTPUT_DIR} and {PROCESSED_DIR}")
-        self.executor = ThreadPoolExecutor(max_workers=1)  # Initialize executor
+        
 
     def transcribe_audio(self, file_path):
         """Transcribes audio using OpenAI Whisper API."""
@@ -167,7 +161,7 @@ class AudioProcessor:
             return False, True  # Default to continuing with question on error
 
     def save_master_response(self, response):
-        """Saves the master's response to a file with timestamp."""
+        """Retruns the master's response to a file with timestamp."""
         try:
             # Skip saving if response indicates no A/B question was found
             if "does not contain an A/B format question" in response:
@@ -179,10 +173,7 @@ class AudioProcessor:
             if clean_response.startswith("'") and clean_response.endswith("'"):
                 clean_response = clean_response[1:-1]
                 
-            timestamp = datetime.now(TIMEZONE).strftime("%Y-%m-%d %H:%M:%S")
-            with open(MASTER_FILE, 'a', encoding='utf-8') as f:
-                f.write(f"{timestamp}: {clean_response}\n")
-            logger.info(f"Saved master response to {MASTER_FILE}: {clean_response}")
+            return clean_response
         except Exception as e:
             logger.error(f"Failed to save master response: {str(e)}")
 
@@ -229,7 +220,8 @@ class AudioProcessor:
 
     def process_trigger(self, alarm_id):
         """Processes an alarm trigger, recording, transcribing, and analyzing the audio."""
-        timestamp = datetime.now(TIMEZONE).strftime("%Y%m%d_%H%M%S")
+        final_answer = None
+        timestamp = datetime.now(TIME_ZONE).strftime("%Y%m%d_%H%M%S")
         logger.info(f"\n=== Processing trigger for {alarm_id} at {timestamp} ===\n")
 
         file_paths = {
@@ -288,7 +280,11 @@ class AudioProcessor:
                         
                         # Save master response to file
                         if master_response:
-                            self.save_master_response(master_response)
+                            answer = self.save_master_response(master_response)
+                            final_answer = answer
+                            logger.info(f"Final answer retruned: {answer}")
+
+
                 else:
                     logger.info("No winner and no question detected - skipping processing")
                 
@@ -310,8 +306,11 @@ class AudioProcessor:
             logger.error(f"Processing error: {str(e)}")
             logger.exception("Full error traceback:")
 
-
-
+        if final_answer:
+            return final_answer
+        else:
+            return None
+        
 def handle_comp(data):
     try:
         global last_alarm_time, audio_processor, last_processed_alarm_time
@@ -327,16 +326,22 @@ def handle_comp(data):
             if not audio_processor:
                 audio_processor = AudioProcessor()
 
-            audio_processor.executor.submit(audio_processor.process_trigger, alarm_id)
-            return jsonify({"status": "success", "message": f"Alarm {alarm_id} processed"}), 200
+            answer = audio_processor.process_trigger(alarm_id)
+            return answer
         else:
-            return jsonify({"status": "success", "message": "No alarm detected"}), 200
+            return None
 
     except Exception as e:
         logger.error(f"Callback error: {str(e)}")
         logger.exception("Full error traceback:")
-        return jsonify({"status": "error", "message": "Callback error"}), 500
+        return False
 
+def extract_answer(text):
+    match = re.search(r'The answer is: (.*)', text)
+    if match:
+        return match.group(1)
+    else:
+        return None
 
 def comp_make_me_a_millionaire(data):
     try:
@@ -345,24 +350,21 @@ def comp_make_me_a_millionaire(data):
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         os.makedirs(PROCESSED_DIR, exist_ok=True)
         
-        timestamp = datetime.now(TIMEZONE).strftime("%Y-%m-%d %H:%M:%S %Z")
+        timestamp = datetime.now(TIME_ZONE).strftime("%Y-%m-%d %H:%M:%S %Z")
         startup_message = f"Starting Make Me a Millionaire Monitor System at {timestamp}"
         logger.info("\n" + "="*50)
         logger.info(startup_message)
         logger.info("="*50 + "\n")
-        
-                
+            
         logger.info("Audio processor initialized globally")
         logger.info("Monitoring Status: Active")
         logger.info(f"Monitoring for Alarms: {', '.join(VALID_ALARMS)}")
         logger.info(f"Cooldown Period: {COOLDOWN_DURATION} seconds")
         
-
-        redis_manager.redis_client.set("COOLDOWN_DURATION", COOLDOWN_DURATION,ex=COOLDOWN_DURATION)
-
+        answer = handle_comp(data)
         
-        handle_comp(data)
-        
+        final_answer = extract_answer(answer)
+        return ["Make me a millionaire", final_answer]
         
     except Exception as e:
         logger.error(f"Startup error: {str(e)}")

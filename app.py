@@ -40,7 +40,7 @@ def process_alarm(data):
     if comp_alert[0] and comp_alert[1]:
         run_comp(comp_name=comp_alert[0], alert_type=comp_alert[1],data = data)
     else:
-        run_comp(comp_name=None, alert_type=None, data = data)
+        run_comp(comp_name=None, alert_type=None, data =data)
 
     logger.info(f"COMP PROCESSING COMPLETED")
 

@@ -37,6 +37,8 @@ def run_comp(comp_name, alert_type,data=None):
         if data:
 
             data = comp_make_me_a_millionaire(data)
+        
+
         if data is None:
             logger.info(f"No data received for comp: {comp_name}")
             return
