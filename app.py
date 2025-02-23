@@ -38,10 +38,9 @@ def process_alarm(data):
     else:
         contact_manager.redis_client.set(comp_alert[0],"processing",ex=180)
     if comp_alert[0] and comp_alert[1]:
-        run_comp(comp_name=comp_alert[0], alert_type=comp_alert[1],data = data)
+        run_comp(comp_name=comp_alert[0], alert_type=comp_alert[1])
     else:
-        run_comp(comp_name=None, alert_type=None, data =data)
-
+        logger.error("Comp data is missing in the callback")
     logger.info(f"COMP PROCESSING COMPLETED")
 
 @app.route('/info-server')

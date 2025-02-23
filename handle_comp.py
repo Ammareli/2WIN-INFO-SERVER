@@ -5,7 +5,7 @@ from constants import COMPS
 from utilites import return_data_to_message_server
 from logger  import logger
 
-def run_comp(comp_name, alert_type,data=None):
+def run_comp(comp_name, alert_type):
     
     if not comp_name in COMPS:
         raise Exception(f"Invalid comp name: {comp_name}")
@@ -19,6 +19,7 @@ def run_comp(comp_name, alert_type,data=None):
             return
         if result:
             logger.info(f"Successfully sent data to message server for comp: {comp_name, alert_type}")
+
     if comp_name == 'January Jackpot':
         logger.info(f"Running comp: {comp_name, alert_type}")
         data = run_jan_jackpot(alert_type)
@@ -34,11 +35,9 @@ def run_comp(comp_name, alert_type,data=None):
 
     if comp_name == 'Make me a millionaire':
         logger.info(f"Running comp: {comp_name, alert_type}")
-        if data:
-
-            data = comp_make_me_a_millionaire(data)
         
-
+        data = comp_make_me_a_millionaire(alert_type)
+        
         if data is None:
             logger.info(f"No data received for comp: {comp_name}")
             return
