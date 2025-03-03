@@ -4,3 +4,4 @@ logs
 flow.txt.txt
 test_info_server.ipynb
 output_segments
+.env-info
