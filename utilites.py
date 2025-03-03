@@ -51,6 +51,7 @@ def return_data_to_message_server(data):
     'comp_name': comp_name,
     'message_data': message_data
     }
+    
     logger.info("Data Sent to messageing server")
     
     response = requests.post(URL, headers=headers, json=data)
