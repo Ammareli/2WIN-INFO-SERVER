@@ -436,7 +436,7 @@ class AudioProcessor:
         try:
             logger.info(f"Starting {RECORDING_DURATION} seconds recording...")
             command = [
-                "ffmpeg", "-y",
+                "/usr/bin/ffmpeg", "-y",
                 "-i", LIVE_STREAM_URL,
                 "-t", str(RECORDING_DURATION),
                 "-acodec", "pcm_s16le",
@@ -449,7 +449,7 @@ class AudioProcessor:
 
             logger.info("Converting WAV to MP3...")
             command = [
-                "ffmpeg", "-y",
+                "/usr/bin/ffmpeg", "-y",
                 "-i", file_paths['wav'],
                 "-codec:a", "libmp3lame",
                 "-qscale:a", "2",
