@@ -539,7 +539,6 @@ def handle_comp(alarm_id):
 def comp_make_me_a_millionaire(alarm):
     try:
         
-        
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         os.makedirs(PROCESSED_DIR, exist_ok=True)
         
@@ -556,12 +555,16 @@ def comp_make_me_a_millionaire(alarm):
         
     
         answer = handle_comp(alarm)
-        if answer:
-           
-            logger.info(["Make me a millionaire", answer])
-            return ["Make me a millionaire", answer]
+        if answer == "#":
+            return
         else:
-            return    
+            if answer:
+            
+                logger.info(["Make me a millionaire", answer])
+                return ["Make me a millionaire", answer]
+            else:
+                return 
+               
     except Exception as e:
         logger.error(f"Startup error: {str(e)}")
         logger.exception("Full startup error traceback:")
