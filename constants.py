@@ -7,15 +7,16 @@ import pytz
 # Load environment variables
 load_dotenv(".env-info")
 
+
 # MESSAGEING SERVER
 AUTH = os.getenv("AUTH")
 URL = os.getenv("URL")
 
 
 # ACR API
-
 ACR_API_URL = os.getenv("ACR_API_URL")
 ACR_API_KEY = os.getenv("ARC_API_BEARER_TOKEN")
+
 
 # time zone
 TIME_ZONE = pytz.timezone("Europe/London")
@@ -34,7 +35,8 @@ COMPS = [
     "Phrase That Pays", 
     "Xmas Cracker",
     "January Jackpot",
-    "Make me a millionaire"
+    "Make me a millionaire",
+    "35k Payday",
 ]
 
 # january jackpot

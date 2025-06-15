@@ -25,6 +25,7 @@ def process_alarm(data):
     logger.info(f"Started COMP PROCESSING")
     logger.info(f"Received callback data: {data}")
     alert_data = get_compname_alerts(data)
+    logger.info(f"Alert data: {alert_data}")
     if not alert_data:
         logger.error("No alert data found in the callback")
         return
@@ -45,15 +46,18 @@ def process_alarm(data):
 
 @app.route('/info-server')
 def test_route():
+    logs_test_path = "info server/notes.txt"
+    notes_test_path = "info server/logs/info_server.log"
+
     # Read the notes.txt file
-    with open(NOTES_FILE_PATH, 'r') as file:
+    with open(notes_test_path, 'r') as file:
         notes_content = file.read()
     
     # Convert Markdown content to HTML
     notes_html = markdown.markdown(notes_content)
     
     # Read the log file
-    with open(LOG_FILE_PATH, 'r') as file:
+    with open(logs_test_path, 'r') as file:
         log_content = file.read()
     
     return render_template('test.html', notes_html=notes_html, log_content=log_content)
