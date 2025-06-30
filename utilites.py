@@ -40,7 +40,7 @@ def get_compname_alerts(data):
 
 
 def return_data_to_message_server(data):
-    time.sleep(180)  # delay for 3 minutes only for beta testing
+    # time.sleep(180)  # delay for 3 minutes only for beta testing
     comp_name = data[0]
     message_data = data[1]
     headers = {
@@ -60,6 +60,8 @@ def return_data_to_message_server(data):
         logger.info(f"Successfully sent data to message server for comp DATA: {data}")
         return True
     else:
+        logger.error(f"Failed to send data to message server for comp DATA: {data}, Status Code: {response.status_code}, Response: {response.text}")
+        logger.error("Error sending data to message server")
         return False
 
     

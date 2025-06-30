@@ -37,6 +37,7 @@ COMPS = [
     "January Jackpot",
     "Make me a millionaire",
     "35k Payday",
+    "Splash The Cash"
 ]
 
 # january jackpot
