@@ -44,7 +44,7 @@ def process_alarm(data):
         logger.error("Comp data is missing in the callback")
     logger.info(f"COMP PROCESSING COMPLETED")
 
-@app.route('/info-server')
+@app.route('/')
 def test_route():
     logs_test_path = LOG_FILE_PATH
     notes_test_path = NOTES_FILE_PATH
