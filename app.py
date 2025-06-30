@@ -46,8 +46,8 @@ def process_alarm(data):
 
 @app.route('/info-server')
 def test_route():
-    logs_test_path = "info server/notes.txt"
-    notes_test_path = "info server/logs/info_server.log"
+    logs_test_path = LOG_FILE_PATH
+    notes_test_path = NOTES_FILE_PATH
 
     # Read the notes.txt file
     with open(notes_test_path, 'r') as file:
