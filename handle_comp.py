@@ -77,4 +77,13 @@ def run_comp(comp_name, alert_type):
             return
         if result:
             logger.info(f"Successfully sent data to message server for comp: {comp_name, alert_type}")
+
+    # ADD NEW: When adding new competitions, add a new if block here:
+    # if comp_name == 'Your New Competition Name':
+    #     logger.info(f"Running comp: {comp_name, alert_type}")
+    #     data = your_new_comp_function(alert_type)
+    #     if data:
+    #         result = return_data_to_message_server(data)
+    #     if result:
+    #         logger.info(f"Successfully sent data to message server for comp: {comp_name, alert_type}")
     
