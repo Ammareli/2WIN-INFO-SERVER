@@ -55,3 +55,6 @@ BEARER_TOKEN = os.getenv('ARC_API_BEARER_TOKEN')
 ACRCLOUD_API_URL = os.getenv('ACRCLOUD_API_URL')
 LIVE_STREAM_URL = os.getenv('LIVE_STREAM_URL')
 
+# splash the cash
+WHISPER_API_URL = os.getenv("WHISPER_API_URL")
+GPT_API_URL = os.getenv("GPT_API_URL")
