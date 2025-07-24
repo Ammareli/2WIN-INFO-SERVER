@@ -39,7 +39,7 @@ COMPS = [
     "Make me a millionaire",
     "35k Payday",
     "Splash The Cash"
-    # ADD NEW: "Your New Competition Name",
+    # ADD NEW: "Splash The Cash",
 ]
 
 # january jackpot
