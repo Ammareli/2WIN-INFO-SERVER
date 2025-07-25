@@ -26,6 +26,7 @@ LOG_FILE_PATH = 'logs/info_server.log'
 NOTES_FILE_PATH = 'notes.txt'
 
 # Comp Names And CODES.
+# ADD NEW: When adding new competitions, add the competition name here (must match EXACTLY with MESSAGING SERVER)
 COMPS = [
     "Cash Register",
     "Pick Up In 5 Rings",
@@ -38,6 +39,7 @@ COMPS = [
     "Make me a millionaire",
     "35k Payday",
     "Splash The Cash"
+    # ADD NEW: "Splash The Cash",
 ]
 
 # january jackpot
@@ -53,3 +55,6 @@ BEARER_TOKEN = os.getenv('ARC_API_BEARER_TOKEN')
 ACRCLOUD_API_URL = os.getenv('ACRCLOUD_API_URL')
 LIVE_STREAM_URL = os.getenv('LIVE_STREAM_URL')
 
+# splash the cash
+WHISPER_API_URL = os.getenv("WHISPER_API_URL")
+GPT_API_URL = os.getenv("GPT_API_URL")
