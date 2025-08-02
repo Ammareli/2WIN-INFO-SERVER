@@ -4,18 +4,14 @@ Heart Radio Splash Cash Competition Outcome Detection Script
 Detects win/lose outcomes from live radio stream after alarm trigger
 """
 
-import os
-import json
-import time
-import logging
-import subprocess
-import requests
-import threading
-from datetime import datetime, timedelta
-from pathlib import Path
-from logger import logger
-from constants import LIVE_STREAM_URL, OPENAI_API_KEY, WHISPER_API_URL, GPT_API_URL
 
+import time
+
+import requests
+from datetime import datetime
+from constants import LIVE_STREAM_URL, OPENAI_API_KEY, WHISPER_API_URL, GPT_API_URL
+from logger import logger
+from redis_cache import RedisContactManager
 
 # ============= TIMING CONTROLS =============
 INITIAL_DELAY_MINUTES = 2         # Wait time after alarm before recording starts
@@ -38,37 +34,7 @@ TRANSCRIPT_FILE = "session_transcript.txt"
 GPT_RESPONSE_FILE = "splash_gptmessage.txt"
 LOG_FILE = "splash_processing.log"
 
-# ============= LOGGING SETUP =============
-def setup_logging():
-    """Setup logging configuration"""
-    import logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(LOG_FILE),
-            logging.StreamHandler()
-        ]
-    )
-    return logging.getLogger(__name__)
 
-# ============= GLOBAL STATE =============
-class SplashCashDetector:
-    def __init__(self):
-        self.logger = setup_logging()
-        self.session_id = None
-        self.is_recording = False
-        self.chunks_recorded = 0
-        self.outcome_detected = False
-        self.call_detected = False
-        self.session_start_time = None
-        self.transcript_content = ""
-        
-        # Create directories
-        from pathlib import Path
-        Path(CHUNK_DIR).mkdir(exist_ok=True)
-        
-        self.logger.info("=== Splash Cash Detector Initialized ===")
 
 # ============= ORIGINAL GPT PROMPTS AND CONSTRAINTS =============
 SYSTEM_CONSTRAINTS = """You are a specialized radio transcript analyzer. You must:
@@ -135,13 +101,13 @@ SMS TEMPLATES TO USE:
 
 RESPOND ONLY IN THIS EXACT JSON FORMAT - NO OTHER TEXT:
 {{
-  "call_made": true/false,
-  "outcome": "WIN"/"LOSE"/"UNKNOWN",
-  "sms_message": "exact SMS using templates above",
-  "confidence": "high"/"medium"/"low",
-  "stage_1_call_initiated": true/false,
-  "stage_2_call_completed": true/false,
-  "stage_3_clear_outcome": true/false
+"call_made": true/false,
+"outcome": "WIN"/"LOSE"/"UNKNOWN",
+"sms_message": "exact SMS using templates above",
+"confidence": "high"/"medium"/"low",
+"stage_1_call_initiated": true/false,
+"stage_2_call_completed": true/false,
+"stage_3_clear_outcome": true/false
 }}
 
 CONSTRAINTS:
@@ -153,6 +119,26 @@ CONSTRAINTS:
 - Be extremely conservative - prefer UNKNOWN over wrong decisions
 - DO NOT extract or mention any timing information"""
 
+
+# ============= GLOBAL STATE =============
+class SplashCashDetector:
+    def __init__(self):
+        self.logger = logger
+        self.session_id = None
+        self.is_recording = False
+        self.chunks_recorded = 0
+        self.outcome_detected = False
+        self.call_detected = False
+        self.session_start_time = None
+        self.transcript_content = ""
+        
+        # Create directories
+        from pathlib import Path
+        Path(CHUNK_DIR).mkdir(exist_ok=True)
+        
+        self.logger.info("=== Splash Cash Detector Initialized ===")
+
+    
     def start_detection_session(self):
         """Start a new detection session after alarm trigger"""
         # Prevent multiple sessions
@@ -175,6 +161,7 @@ CONSTRAINTS:
         # Start the detection process
         import threading
         threading.Thread(target=self._detection_workflow, daemon=True).start()
+        # self._detection_workflow()
 
     def _detection_workflow(self):
         """Main detection workflow"""
@@ -248,7 +235,7 @@ CONSTRAINTS:
             
             # ffmpeg command for live stream recording
             cmd = [
-                'ffmpeg',
+                '/usr/bin/ffmpeg',
                 '-i', LIVE_STREAM_URL,
                 '-t', str(duration),  # Record for this duration
                 '-acodec', 'libmp3lame',  # Use libmp3lame for better compatibility
@@ -510,7 +497,8 @@ CONSTRAINTS:
             
             # TODO: Implement actual SMS sending logic here
             # This could be Twilio, AWS SNS, or your existing SMS service
-            
+            manager = RedisContactManager()
+            manager.redis_client.set("SPLASH_MESSAGE")
             # For now, just log the message
             print(f"\n🔔 SMS ALERT: {message}\n")
             
@@ -551,34 +539,28 @@ CONSTRAINTS:
             self.logger.error(f"Error during cleanup: {e}")
 
 # ============= ASYNC FUNCTION FOR SERVER INTEGRATION =============
-def detect_splash_cash_outcome_async(alert_type):
+def detect_splash_cash_outcome_async():
     """Function called by splash.py - creates detector and starts session"""
     detector = SplashCashDetector()
     detector.start_detection_session()
 
-# ============= MAIN EXECUTION =============
-def main():
-    """Main function for testing"""
-    detector = SplashCashDetector()
+# # ============= MAIN EXECUTION =============
+# def main():
+#     """Main function for testing"""
+#     detector = SplashCashDetector()
     
-    print("Splash Cash Detector Ready!")
-    print("Call detector.start_detection_session() to begin detection after alarm trigger")
+#     print("Splash Cash Detector Ready!")
+#     print("Call detector.start_detection_session() to begin detection after alarm trigger")
     
-    return detector
+#     return detector
 
-if __name__ == "__main__":
-    # Create detector instance
-    detector = main()
+# def start_splash_the_cash():
+#     # Create detector instance
+#     detector = main()
     
-    # Keep script running for testing
-    try:
-        while True:
-            user_input = input("\nPress 'start' to trigger detection, 'quit' to exit: ").strip().lower()
-            if user_input == 'start':
-                detector.start_detection_session()
-            elif user_input == 'quit':
-                break
-            else:
-                print("Invalid input. Use 'start' or 'quit'")
-    except KeyboardInterrupt:
-        print("\nScript terminated by user")
+#     # Keep script running for testing
+#     try:
+#         detector.start_detection_session()
+            
+#     except KeyboardInterrupt:
+#         print("\nScript terminated by user")

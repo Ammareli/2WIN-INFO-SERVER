@@ -6,6 +6,9 @@ from comps.splash import execute_comp
 from constants import COMPS
 from utilites import return_data_to_message_server
 from logger  import logger
+from redis_cache import RedisContactManager
+
+
 
 def run_comp(comp_name, alert_type):
     logger.info(f"Running comp: {comp_name, alert_type}")
@@ -72,11 +75,14 @@ def run_comp(comp_name, alert_type):
             return
         if data:
             logger.info(f"Data to send: {data}")
+            
             result = return_data_to_message_server(data)  
         else:
             return
         if result:
             logger.info(f"Successfully sent data to message server for comp: {comp_name, alert_type}")
+
+    
 
     # ADD NEW: When adding new competitions, add a new if block here:
     # if comp_name == 'Your New Competition Name':

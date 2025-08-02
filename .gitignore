@@ -5,3 +5,8 @@ flow.txt.txt
 test_info_server.ipynb
 output_segments
 .env-info
+ENV
+audio_chunks
+session_transcript.txt
+splash_gptmessage.txt
+test.ipynb
