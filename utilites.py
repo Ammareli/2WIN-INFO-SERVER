@@ -40,20 +40,24 @@ def get_compname_alerts(data):
 
 
 def return_data_to_message_server(data):
-    # time.sleep(180)  # delay for 3 minutes only for beta testing
     comp_name = data[0]
     message_data = data[1]
+
+    # Convert bytes to string if needed
+    if isinstance(message_data, bytes):
+        message_data = message_data.decode('utf-8')  # or 'ascii' depending on encoding
+
     headers = {
-    'Content-Type': 'application/json',
-    'Authorization': AUTH
+        'Content-Type': 'application/json',
+        'Authorization': AUTH
     }
     data = {
-    'comp_name': comp_name,
-    'message_data': message_data
+        'comp_name': comp_name,
+        'message_data': message_data
     }
-    
-    logger.info("Data Sent to messageing server")
-    
+
+    logger.info("Data Sent to messaging server")
+
     response = requests.post(URL, headers=headers, json=data)
     logger.info(f"Message server response: {response}")
     if response.status_code == 200:

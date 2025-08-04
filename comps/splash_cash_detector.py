@@ -159,9 +159,9 @@ class SplashCashDetector:
         self.logger.info(f"Alarm triggered at: {self.session_start_time}")
         
         # Start the detection process
-        import threading
-        threading.Thread(target=self._detection_workflow, daemon=True).start()
-        # self._detection_workflow()
+        # import threading
+        # threading.Thread(target=self._detection_workflow, daemon=True).start()
+        self._detection_workflow()
 
     def _detection_workflow(self):
         """Main detection workflow"""
@@ -498,7 +498,7 @@ class SplashCashDetector:
             # TODO: Implement actual SMS sending logic here
             # This could be Twilio, AWS SNS, or your existing SMS service
             manager = RedisContactManager()
-            manager.redis_client.set("SPLASH_MESSAGE")
+            manager.redis_client.set("SPLASH_MESSAGE",message)
             # For now, just log the message
             print(f"\n🔔 SMS ALERT: {message}\n")
             

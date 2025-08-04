@@ -36,6 +36,7 @@ def execute_comp(alert_type: str):
 
         if manager.redis_client.exists("SPLASH_MESSAGE"):
             alarm_message = manager.redis_client.get("SPLASH_MESSAGE")
+            # alarm_message = alarm_message.decode()
         else:
             return None
     
